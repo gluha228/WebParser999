@@ -1,7 +1,11 @@
-import org.jsoup.nodes.Element;
+package com;
 
+import org.jsoup.nodes.Element;
+import org.springframework.stereotype.Component;
+
+@Component
 public class ItemParser {
-    public SellingItem getAllItems(Element html) {
+    public SellingItem getItem(Element html) {
         return new SellingItem(
                 html.getElementsByClass("adPage__content__price-feature__prices__price__value").first().text(),
                 html.getElementsByTag("h1").text(),
