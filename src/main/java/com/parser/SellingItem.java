@@ -1,4 +1,4 @@
-package com;
+package com.parser;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,7 +13,10 @@ public class SellingItem {
     private String phoneNumber;
     private String description;
     private String seller;
-    public void publish() {
-        System.out.println(price + " | " + title + " | " + phoneNumber + " | " + seller);
+
+    //удивлен, что метод .toString используется таймлифом автоматически
+    @Override
+    public String toString() {
+        return this.price + " | " + this.title + " | " + this.phoneNumber + " | " + this.seller;
     }
 }

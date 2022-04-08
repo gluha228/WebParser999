@@ -1,13 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>hello</title>
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head> 
+    <title>Getting Started: Serving Web Content</title> 
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 </head>
 <body>
 <div><a href="/api/v1/fetch?section=/ru/list/clothes-and-shoes/watches">watches</a></div>
 <div><a href="/api/v1/fetch?section=/ru/list/furniture-and-interior/antiques">antique</a></div>
 <div><a href="/api/v1/fetch?section=/ru/list/furniture-and-interior/pictures">big watches and pictures</a></div>
-<b>Наконец начало работать</b>
+    <ul th:each="contents : ${content}">
+        <li th:text="${contents}"></li>
+    </ul>
 </body>
 </html>

@@ -1,4 +1,4 @@
-package com;
+package com.parser;
 
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -16,6 +16,7 @@ public class AllItemsParser {
     private ItemParser itemParser;
 
     public List<SellingItem> parseItems (String url) throws IOException {
+        System.out.println("//////////////////////////"+ url);
         Element html = body.get(url);
         ArrayList<SellingItem> items = new ArrayList<>();
         Elements elements = html.getElementsByClass("ads-list-photo-item-animated-link");
