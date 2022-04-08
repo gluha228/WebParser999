@@ -13,15 +13,16 @@ import java.util.List;
 
 @Controller
 public class ParseDataController {
-    @Autowired
     AllItemsParser itemsParser;
+    @Autowired
+    public ParseDataController(AllItemsParser itemsParser) {
+        this.itemsParser = itemsParser;
+    }
 
     @GetMapping ("/api/v1/fetch")
-    public String directoryRequest(@RequestParam("section") String section, Model model) throws IOException {
-        System.out.println(section);
-        List<SellingItem> items = itemsParser.parseItems("https://999.md" + section);
+    public String directoryRequest(@RequestParam("section") String section, @RequestParam("mode") String mode, Model model) throws IOException {
+        List items = itemsParser.parseItems("https://999.md" + section, mode);
         model.addAttribute("content", items);
         return "sectionData";
     }
-
 }

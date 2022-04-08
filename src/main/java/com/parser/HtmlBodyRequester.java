@@ -8,8 +8,7 @@ import java.io.IOException;
 
 @Component
 public class HtmlBodyRequester {
-    public Element get(String string) throws IOException {
-        Document document = Jsoup.connect(string).get();
-        return document.body();
+    public Element get(String url) throws IOException {
+        return Jsoup.connect(url).get().body();
     }
 }

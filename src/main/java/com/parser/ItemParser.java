@@ -1,25 +1,27 @@
 package com.parser;
 import org.jsoup.nodes.Element;
+import org.jsoup.parser.Tag;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ItemParser {
     public SellingItem getItem(Element html) {
         return new SellingItem(
-                getPrice(html.getElementsByClass("adPage__content__price-feature__prices__price__value").first()),
+                nullCheck(html.getElementsByClass("adPage__content__price-feature__prices__price__value").first()).text(),
                 html.getElementsByTag("h1").text(),
-                getPhone(html.getElementsByClass("adPage__content__phone").first().getElementsByTag("a").first()),
+                nullCheck(html.getElementsByClass("adPage__content__phone").first().getElementsByTag("a").first()).attr("href"),
                 html.getElementsByClass("adPage__content__description").text(),
                 html.getElementsByClass("adPage__aside__stats__owner__login").text()
         );
     }
-    //на объявления с неуказанным номером или ценой всё ломалось
-    private String getPhone(Element element) {
-        if (element == null) return "no phone";
-        return element.attr("href");
+    public EasySellingItem getEasyItem(Element html) {
+        return new EasySellingItem(
+                nullCheck(html.getElementsByClass("ads-list-detail-item-price").first()).text(),
+                nullCheck(html.getElementsByClass("ads-list-detail-item-title").first()).text());
     }
-    private String getPrice(Element element) {
-        if (element == null) return "no price";
-        return element.text();
+
+    private Element nullCheck(Element element) {
+        if (element == null) return new Element(Tag.valueOf("none"),"none");
+        return element;
     }
 }

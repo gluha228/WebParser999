@@ -5,9 +5,13 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 </head>
 <body>
-<div><a href="/api/v1/fetch?section=/ru/list/clothes-and-shoes/watches">watches</a></div>
-<div><a href="/api/v1/fetch?section=/ru/list/furniture-and-interior/antiques">antique</a></div>
-<div><a href="/api/v1/fetch?section=/ru/list/furniture-and-interior/pictures">big watches and pictures</a></div>
+<div>watches <a href="/api/v1/fetch?section=/ru/list/clothes-and-shoes/watches?view_type=detail&mode=short">shortMode</a> |
+    <a href="/api/v1/fetch?section=/ru/list/clothes-and-shoes/watches?view_type=detail&mode=full">fullMode</a></div>
+<div>antique <a href="/api/v1/fetch?section=/ru/list/furniture-and-interior/antiques?view_type=detail&mode=short">shortMode</a> |
+    <a href="/api/v1/fetch?section=/ru/list/furniture-and-interior/antiques?view_type=detail&mode=full">fullMode</a></div>
+<div>big watches and pictures <a href="/api/v1/fetch?section=/ru/list/furniture-and-interior/pictures?view_type=detail&mode=short">shortMode</a> |
+    <a href="/api/v1/fetch?section=/ru/list/furniture-and-interior/pictures?view_type=detail&mode=full">fullMode</a></div>
+
     <ul th:each="contents : ${content}">
         <li th:text="${contents}"></li>
     </ul>
