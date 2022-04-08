@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class AllItemsParser {
@@ -14,13 +15,13 @@ public class AllItemsParser {
     @Autowired
     private ItemParser itemParser;
 
-    public ArrayList<SellingItem> parseItems (String url) throws IOException {
+    public List<SellingItem> parseItems (String url) throws IOException {
         Element html = body.get(url);
         ArrayList<SellingItem> items = new ArrayList<>();
         Elements elements = html.getElementsByClass("ads-list-photo-item-animated-link");
         elements.forEach(element -> {
             try {
-                //System.out.println(element.attr("href"));
+                System.out.println("https://999.md/" + element.attr("href"));
                 items.add(itemParser.getItem(body.get("https://999.md/" + element.attr("href"))));
             } catch (IOException e) {
                 e.printStackTrace();
