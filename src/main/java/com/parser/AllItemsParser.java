@@ -10,16 +10,8 @@ import java.util.Objects;
 
 @Component
 public record AllItemsParser(HtmlBodyRequester body, ItemParser itemParser) {
-    @Autowired
-    public AllItemsParser {
-    }
 
-    public List parseItems (String url, String mode) throws IOException {
-        if (Objects.equals(mode, "full")) return fullParseItems(url);
-        return previewItems(url);
-    }
-
-    private List<SellingItem> fullParseItems(String url) throws IOException {
+    public List<SellingItem> fullParseItems(String url) throws IOException {
         Elements elements = body.get(url).getElementsByClass("ads-list-detail-item-thumb");
         ArrayList<SellingItem> items = new ArrayList<>();
         elements.forEach(element -> {
@@ -29,7 +21,7 @@ public record AllItemsParser(HtmlBodyRequester body, ItemParser itemParser) {
         return items;
     }
 
-    private List<EasySellingItem> previewItems(String url) throws IOException, NullPointerException {
+    public List<EasySellingItem> previewItems(String url) throws IOException, NullPointerException {
         Elements elements = body.get(url).getElementsByClass("ads-list-detail-item");
         ArrayList<EasySellingItem> items = new ArrayList<>();
         elements.forEach(element -> items.add(itemParser.getEasyItem(element)));

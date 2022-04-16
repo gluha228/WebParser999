@@ -3,10 +3,13 @@ package com.parser;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 public class SellingItem {
     private String price;
     private String title;
