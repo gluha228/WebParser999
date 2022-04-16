@@ -2,6 +2,7 @@ package com.db;
 
 import com.parser.AllItemsParser;
 import com.parser.SellingItem;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -74,13 +75,26 @@ public class DBRequester {
                         updateTable(category);
                         actuality.put(category, now);
                         parseProcesses.remove(category);
-                        System.out.println("done");
                     } catch (IOException e) { e.printStackTrace(); }
                 }).start();
-            return Arrays.asList(new SellingItem("Перезагрузите страницу секунд через 30", "", "", "", ""));
+            if (actuality.get(category).getTime() == 0)
+                return Arrays.asList(new SellingItem("Перезагрузите страницу секунд через 30", "", "", "", ""));
         }
 
         return template.query("SELECT * FROM " + validName.get(category), new BeanPropertyRowMapper<>(SellingItem.class));
+    }
+
+    public void sideUpdate() {
+        new Thread(() -> {
+            while (true) {
+                for (Map.Entry<String, Date> entry : actuality.entrySet()) try {
+                    getItemsFromCategory(entry.getKey());
+                    } catch (IOException e) { e.printStackTrace(); }
+                try {
+                    Thread.sleep(1000*60*30);}   //раз в полчаса проверяет актуальность url-ов, которые уже запрашивались до этого
+                catch (InterruptedException e) {e.printStackTrace();}
+            }
+        }).start();
     }
 
     public List getItems(String category, String mode) throws IOException {
