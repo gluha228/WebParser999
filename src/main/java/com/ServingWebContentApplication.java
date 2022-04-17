@@ -15,9 +15,7 @@ public class ServingWebContentApplication {
 
     public static void main(String[] args) throws IOException {
         SpringApplication.run(ServingWebContentApplication.class, args);
-        DBRequester requester = new DBRequester(new AllItemsParser(new HtmlBodyRequester(), new ItemParser()));
-        requester.sideUpdate();
-    }
+        }
 
 
 }
