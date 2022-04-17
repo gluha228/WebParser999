@@ -5,7 +5,6 @@ import com.parser.SellingItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.*;
@@ -19,13 +18,8 @@ public class DBRequester {
     private final AllItemsParser parser;
 
     @Autowired
-    public DBRequester(AllItemsParser parser) {
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName("org.h2.Driver");
-        dataSource.setUrl("jdbc:h2:tcp://localhost/~/test");
-        dataSource.setUsername("user");
-        dataSource.setPassword("user");
-        this.template = new JdbcTemplate(dataSource);
+    public DBRequester(AllItemsParser parser, MyDataSourse dataSource) {
+        this.template = new JdbcTemplate(dataSource.getDataSourse());
         this.parser = parser;
         //таблица с инфой про актуальность остальных таблиц с данными, нужна чтобы при перезапуске сервера инфа об актуальности не пропадала, словно перезапуска и не было
         template.execute("CREATE TABLE IF NOT EXISTS ActualityInfo(lastUpdate varchar, originalUrl varchar)");
@@ -68,18 +62,30 @@ public class DBRequester {
                 " description varchar , seller varchar );");
     }
 
-    //при обновлении можно и сравнить со списком от парсера, добавив то, что есть только в списке и удалить то,
-    // что есть только в бд, так конечно будет меньше перезаписей, однако будет намного дольше выполняться
+    //долго, но минимизированы перезаписи
+    //можно даже использовать частичный парсинг, но он дает только цену и название, потому есть риск удалить лишнее
     private void updateTable(String category) throws IOException {
-        template.execute("TRUNCATE TABLE " + category);
-        parser.fullParseItems(tableInfo.get(category).getOriginalUrl()).forEach(item -> insertItem(item, category));
+        List<SellingItem> parseData = parser.fullParseItems(tableInfo.get(category).getOriginalUrl());
+        List<SellingItem> tableData = template.query("SELECT * FROM " + category, new BeanPropertyRowMapper<>(SellingItem.class));
+        //вычитание пересечений множеств
+        parseData.forEach(parseItem -> tableData.forEach(tableItem -> {
+            if (tableItem.equals(parseItem)) {
+                parseData.remove(parseItem);
+                tableData.remove(tableItem);
+            }}));
+
+        tableData.forEach(item ->
+                template.update("DELETE FROM " + category + " WHERE (price = ? and title = ? and seller = ?) ",
+                item.getPrice(), item.getTitle(), item.getSeller())
+        );
+        parseData.forEach(item -> insertItem(item, category));
     }
 
     private List<SellingItem> getItemsFromCategory(String category) throws IOException {
         Date now = new Date(System.currentTimeMillis());
         int updateTime = 60; // в минутах, сделал отдельной переменной для читаемости кода
         if (TimeUnit.MINUTES.convert(now.getTime() - tableInfo.get(category).getLastUpdate().getTime(), TimeUnit.MILLISECONDS) > updateTime) {
-            if (!parseProcesses.contains(category))
+            if (!parseProcesses.contains(category)) //не более одного потока на обработку одного url(и, соответственно, таблицы)
                 new Thread(() -> {
                     try {
                         parseProcesses.add(category);
