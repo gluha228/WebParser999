@@ -17,7 +17,9 @@ public class ItemParser {
     public EasySellingItem getEasyItem(Element html) {
         return new EasySellingItem(
                 nullCheck(html.getElementsByClass("ads-list-detail-item-price").first()).text(),
-                nullCheck(html.getElementsByClass("ads-list-detail-item-title").first()).text());
+                nullCheck(html.getElementsByClass("ads-list-detail-item-title").first()).text(),
+                html.getElementsByClass("ads-list-detail-item-thumb").first().getElementsByTag("a").first().attr("href")
+        );
     }
 
     private Element nullCheck(Element element) {

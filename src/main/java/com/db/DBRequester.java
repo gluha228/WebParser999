@@ -1,6 +1,7 @@
 package com.db;
 
 import com.parser.AllItemsParser;
+import com.parser.EasySellingItem;
 import com.parser.SellingItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -63,13 +64,13 @@ public class DBRequester {
     }
 
     //долго, но минимизированы перезаписи
-    //можно даже использовать частичный парсинг, но он дает только цену и название, потому есть риск удалить лишнее
+    //используется частичный парсинг(только страницы со всеми объявлениями), он дает только цену и название, потому есть небольшой риск
     private void updateTable(String category) throws IOException {
-        List<SellingItem> parseData = parser.fullParseItems(tableInfo.get(category).getOriginalUrl());
+        List<EasySellingItem> parseData = parser.previewItems(tableInfo.get(category).getOriginalUrl());
         List<SellingItem> tableData = template.query("SELECT * FROM " + category, new BeanPropertyRowMapper<>(SellingItem.class));
         //вычитание пересечений множеств
         parseData.forEach(parseItem -> tableData.forEach(tableItem -> {
-            if (tableItem.equals(parseItem)) {
+            if (tableItem.getPrice() == parseItem.getPrice() && tableItem.getTitle() == parseItem.getTitle()) {
                 parseData.remove(parseItem);
                 tableData.remove(tableItem);
             }}));
@@ -78,7 +79,10 @@ public class DBRequester {
                 template.update("DELETE FROM " + category + " WHERE (price = ? and title = ? and seller = ?) ",
                 item.getPrice(), item.getTitle(), item.getSeller())
         );
-        parseData.forEach(item -> insertItem(item, category));
+        parseData.forEach(item -> { try {
+            insertItem(parser.getItem(item.getRef()), category);
+        } catch (IOException e) { e.printStackTrace(); }});
+
     }
 
     private List<SellingItem> getItemsFromCategory(String category) throws IOException {
