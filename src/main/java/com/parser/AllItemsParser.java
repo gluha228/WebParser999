@@ -1,12 +1,10 @@
 package com.parser;
 
 import org.jsoup.select.Elements;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Component
 public record AllItemsParser(HtmlBodyRequester body, ItemParser itemParser) {
