@@ -14,16 +14,18 @@ public class ActualizatorCRUD {
 
     private final JdbcTemplate template;
     @Autowired
-    public ActualizatorCRUD(JdbcTemplate template) {
-        this.template = template;
+    public ActualizatorCRUD(MyDataSource dataSourse) {
+        this.template = dataSourse.getTemplate();
     }
+
     public void createTable(){
-        template.execute("CREATE TABLE IF NOT EXISTS ActualityInfo(lastUpdate varchar, originalUrl varchar)");
+        template.execute("CREATE TABLE IF NOT EXISTS ActualityInfo(lastUpdate varchar, url varchar)");
     }
 
     public void createActualityInfo(String category){
         template.update("INSERT INTO ActualityInfo VALUES(?, ?)", new Date(0), category);
     }
+
 
     public void updateActualityInfo(String category, Date update) {
         template.update("UPDATE ActualityInfo SET lastUpdate = ? WHERE url = ?", update, category);
@@ -32,7 +34,5 @@ public class ActualizatorCRUD {
     public List<TableInfo> readActualityInfo() {
         return template.query("SELECT * from ActualityInfo", new BeanPropertyRowMapper<>(TableInfo.class));
     }
-
-
 
 }

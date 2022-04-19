@@ -11,11 +11,11 @@ import java.util.Objects;
 
 @Component
 public class DBItemRequester {
-    Actualizator actualizator;
+    Actualizer actualizator;
     SellingItemCRUD crud;
     AllItemsParser parser;
     @Autowired
-    public DBItemRequester (Actualizator actualizator, SellingItemCRUD crud, AllItemsParser parser) {
+    public DBItemRequester (Actualizer actualizator, SellingItemCRUD crud, AllItemsParser parser) {
         this.actualizator = actualizator;
         this.parser = parser;
         this.crud = crud;
