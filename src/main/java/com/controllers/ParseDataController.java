@@ -1,6 +1,6 @@
 package com.controllers;
 
-import com.db.DBRequester;
+import com.db.DBItemRequester;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,15 +11,15 @@ import java.io.IOException;
 
 @Controller
 public class ParseDataController {
-    DBRequester template;
+    DBItemRequester requester;
     @Autowired
-    public ParseDataController(DBRequester template) {
-        this.template = template;
+    public ParseDataController(DBItemRequester requester) {
+        this.requester = requester;
     }
 
     @GetMapping ("/api/v1/fetch")
     public String directoryRequest(@RequestParam("section") String category, @RequestParam("mode") String mode, Model model) throws IOException {
-        model.addAttribute("content", template.getItems("https://999.md" + category, mode));
+        model.addAttribute("content", requester.getItems("https://999.md" + category, mode));
         return "sectionData";
     }
 }

@@ -1,4 +1,4 @@
-package com.db;
+package com.db.sql;
 
 import lombok.NoArgsConstructor;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;

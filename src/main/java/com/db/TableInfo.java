@@ -12,5 +12,5 @@ import java.util.Date;
 @NoArgsConstructor
 public class TableInfo {
     private Date lastUpdate;
-    private String originalUrl;
+    private String url;
 }
