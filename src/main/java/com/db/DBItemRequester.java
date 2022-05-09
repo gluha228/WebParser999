@@ -13,11 +13,11 @@ import java.util.Objects;
 public class DBItemRequester {
     Actualizer actualizer;
     CategoryRepository categoryRepository;
-    EasySellingItemParser parser;
+    EasySellingItemParser easySellingItemParser;
     @Autowired
-    public DBItemRequester (Actualizer actualizer, EasySellingItemParser parser, CategoryRepository categoryRepository) {
+    public DBItemRequester (Actualizer actualizer, EasySellingItemParser easySellingItemParser, CategoryRepository categoryRepository) {
         this.actualizer = actualizer;
-        this.parser = parser;
+        this.easySellingItemParser = easySellingItemParser;
         this.categoryRepository = categoryRepository;
     }
 
@@ -26,6 +26,6 @@ public class DBItemRequester {
             actualizer.checkTableActuality(category);
             return categoryRepository.findFirstByCategory(category).getItems();
         }
-        return parser.previewItems(category);
+        return easySellingItemParser.previewItems(category);
     }
 }

@@ -21,13 +21,13 @@ public class Actualizer {
     private final CategoryRepository categoryRepository;
     private final ItemParser itemParser;
     private final List<String> parseProcesses = new ArrayList<>();
-    private final EasySellingItemParser parser;
+    private final EasySellingItemParser easySellingItemParser;
     private final Logger logger = LoggerFactory.getLogger(Actualizer.class);
 
     @Autowired
     public Actualizer(EasySellingItemParser parser, SellingItemRepository sellingItemRepository,
                       ItemParser itemParser, CategoryRepository categoryRepository) {
-        this.parser = parser;
+        this.easySellingItemParser = parser;
         this.sellingItemRepository = sellingItemRepository;
         this.itemParser = itemParser;
         this.categoryRepository = categoryRepository;
@@ -38,7 +38,7 @@ public class Actualizer {
     //используется частичный парсинг(только общей страницы), он дает только цену и название
     private void updateTableActuality(String category) throws IOException {
         logger.info("starting update of " + category);
-        List<EasySellingItem> parseData = parser.previewItems(category);
+        List<EasySellingItem> parseData = easySellingItemParser.previewItems(category);
         Category categoryObject = categoryRepository.findFirstByCategory(category);
         List<SellingItem> tableData = categoryObject.getItems();//itemDB.readItems(category);
         int i = 0;

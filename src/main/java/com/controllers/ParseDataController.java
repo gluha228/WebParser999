@@ -11,15 +11,15 @@ import java.io.IOException;
 
 @Controller
 public class ParseDataController {
-    DBItemRequester requester;
+    DBItemRequester dbItemRequester;
     @Autowired
-    public ParseDataController(DBItemRequester requester) {
-        this.requester = requester;
+    public ParseDataController(DBItemRequester dbItemRequester) {
+        this.dbItemRequester = dbItemRequester;
     }
 
     @GetMapping ("/api/v1/fetch")
     public String directoryRequest(@RequestParam("section") String category, @RequestParam("mode") String mode, Model model) throws IOException {
-        model.addAttribute("content", requester.getItems("https://999.md" + category, mode));
+        model.addAttribute("content", dbItemRequester.getItems("https://999.md" + category, mode));
         return "sectionData";
     }
 }
