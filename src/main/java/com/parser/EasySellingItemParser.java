@@ -12,7 +12,7 @@ import java.util.List;
 @Component
 public class EasySellingItemParser {
 
-    public List<EasySellingItem> previewItems(String url) throws IOException, NullPointerException {
+    public List<EasySellingItem> getItems(String url) throws IOException, NullPointerException {
         Elements elements = Jsoup.connect(url).get().body().getElementsByClass("ads-list-detail-item");
         ArrayList<EasySellingItem> items = new ArrayList<>();
         elements.forEach(element -> items.add(getEasyItem(element)));

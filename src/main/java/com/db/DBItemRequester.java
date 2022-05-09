@@ -26,6 +26,6 @@ public class DBItemRequester {
             actualizer.checkTableActuality(category);
             return categoryRepository.findFirstByCategory(category).getItems();
         }
-        return easySellingItemParser.previewItems(category);
+        return easySellingItemParser.getItems(category);
     }
 }

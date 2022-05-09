@@ -38,12 +38,11 @@ public class Actualizer {
     //используется частичный парсинг(только общей страницы), он дает только цену и название
     private void updateTableActuality(String category) throws IOException {
         logger.info("starting update of " + category);
-        List<EasySellingItem> parseData = easySellingItemParser.previewItems(category);
+        List<EasySellingItem> parseData = easySellingItemParser.getItems(category);
         Category categoryObject = categoryRepository.findFirstByCategory(category);
         List<SellingItem> tableData = categoryObject.getItems();//itemDB.readItems(category);
-        int i = 0;
         //вычитание пересечений множеств
-        while (i < parseData.size()) {
+        for (int i = 0; i < parseData.size(); i++) {
             for (int j = 0; j < tableData.size(); j++) {
                 if (Objects.equals(tableData.get(j).getPrice(), parseData.get(i).getPrice()) &&
                         Objects.equals(tableData.get(j).getTitle(), parseData.get(i).getTitle())) {
@@ -53,12 +52,9 @@ public class Actualizer {
                     break;
                 }
             }
-            i++;
         }
-
         List<SellingItem> itemsToAdd = new ArrayList<>();
         parseData.forEach(item -> { try {
-            logger.info("getting item");
             itemsToAdd.add(itemParser.getItem("https://999.md" + item.getRef()));
             } catch (IOException e) { e.printStackTrace(); }
         });
@@ -84,8 +80,6 @@ public class Actualizer {
         }
     }
 
-    //раз в полчаса проверяет актуальность данных в бд
-    //не придумал, как вынести в отдельный класс, да и не уверен, что оно надо
     public void sideUpdate() {
         new Thread(() -> {
             while (true) {
