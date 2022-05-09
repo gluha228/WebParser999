@@ -1,7 +1,7 @@
 package com.db;
 
-import com.db.sql.SellingItemCRUD;
-import com.parser.AllItemsParser;
+import com.db.repository.CategoryRepository;
+import com.parser.EasySellingItemParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -11,20 +11,20 @@ import java.util.Objects;
 
 @Component
 public class DBItemRequester {
-    Actualizer actualizator;
-    SellingItemCRUD crud;
-    AllItemsParser parser;
+    Actualizer actualizer;
+    CategoryRepository categoryRepository;
+    EasySellingItemParser parser;
     @Autowired
-    public DBItemRequester (Actualizer actualizator, SellingItemCRUD crud, AllItemsParser parser) {
-        this.actualizator = actualizator;
+    public DBItemRequester (Actualizer actualizer, EasySellingItemParser parser, CategoryRepository categoryRepository) {
+        this.actualizer = actualizer;
         this.parser = parser;
-        this.crud = crud;
+        this.categoryRepository = categoryRepository;
     }
 
     public List getItems(String category, String mode) throws IOException {
         if (Objects.equals(mode, "full")) {
-            actualizator.checkTableActuality(category);
-            return crud.readItems(category);
+            actualizer.checkTableActuality(category);
+            return categoryRepository.findFirstByCategory(category).getItems();
         }
         return parser.previewItems(category);
     }

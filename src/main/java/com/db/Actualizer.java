@@ -1,10 +1,14 @@
 package com.db;
 
-import com.db.sql.ActualizatorCRUD;
-import com.db.sql.SellingItemCRUD;
-import com.parser.AllItemsParser;
+import com.db.entity.Category;
+import com.db.repository.CategoryRepository;
+import com.db.repository.SellingItemRepository;
+import com.parser.EasySellingItemParser;
+import com.db.entity.SellingItem;
 import com.parser.EasySellingItem;
-import com.parser.SellingItem;
+import com.parser.ItemParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import java.io.IOException;
@@ -13,66 +17,70 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 public class Actualizer {
-    private final SellingItemCRUD itemDB;
-    private final ActualizatorCRUD actualityDB;
+    private final SellingItemRepository sellingItemRepository;
+    private final CategoryRepository categoryRepository;
+    private final ItemParser itemParser;
     private final List<String> parseProcesses = new ArrayList<>();
-    private final Map<String, Date> tableInfo = new HashMap<>();
-    private final AllItemsParser parser;
+    private final EasySellingItemParser parser;
+    private final Logger logger = LoggerFactory.getLogger(Actualizer.class);
 
     @Autowired
-    public Actualizer(AllItemsParser parser, SellingItemCRUD crud, ActualizatorCRUD aCrud) {
+    public Actualizer(EasySellingItemParser parser, SellingItemRepository sellingItemRepository,
+                      ItemParser itemParser, CategoryRepository categoryRepository) {
         this.parser = parser;
-        this.itemDB = crud;
-        this.actualityDB = aCrud;
-        actualityDB.createTable();
-        actualityDB.readActualityInfo().forEach(info -> tableInfo.put(info.getUrl(), info.getLastUpdate()));
+        this.sellingItemRepository = sellingItemRepository;
+        this.itemParser = itemParser;
+        this.categoryRepository = categoryRepository;
         sideUpdate();
     }
 
     //довольно долго, но минимизированы перезаписи в дб
     //используется частичный парсинг(только общей страницы), он дает только цену и название
     private void updateTableActuality(String category) throws IOException {
+        logger.info("starting update of " + category);
         List<EasySellingItem> parseData = parser.previewItems(category);
-        List<SellingItem> tableData = itemDB.readItems(category);
-                //вычитание пересечений множеств
-        parseData.forEach(parseItem -> tableData.forEach(tableItem -> {
-            if (Objects.equals(tableItem.getPrice(), parseItem.getPrice()) &&
-                    Objects.equals(tableItem.getTitle(), parseItem.getTitle())) {
-                parseData.remove(parseItem);
-                tableData.remove(tableItem);
-            }}));
+        Category categoryObject = categoryRepository.findFirstByCategory(category);
+        List<SellingItem> tableData = categoryObject.getItems();//itemDB.readItems(category);
+        int i = 0;
+        //вычитание пересечений множеств
+        while (i < parseData.size()) {
+            for (int j = 0; j < tableData.size(); j++) {
+                if (Objects.equals(tableData.get(j).getPrice(), parseData.get(i).getPrice()) &&
+                        Objects.equals(tableData.get(j).getTitle(), parseData.get(i).getTitle())) {
+                    parseData.remove(i);
+                    tableData.remove(j);
+                    i--;
+                    break;
+                }
+            }
+            i++;
+        }
 
         List<SellingItem> itemsToAdd = new ArrayList<>();
         parseData.forEach(item -> { try {
-                itemsToAdd.add(parser.getItem(item.getRef()));
-            } catch (IOException e) { e.printStackTrace(); }});
-
-        tableData.forEach(item -> itemDB.deleteItem(item, category));
-        itemsToAdd.forEach(item -> itemDB.addItem(item, category));
+            logger.info("getting item");
+            itemsToAdd.add(itemParser.getItem("https://999.md" + item.getRef()));
+            } catch (IOException e) { e.printStackTrace(); }
+        });
+        itemsToAdd.forEach(item -> item.setCategory(categoryObject));
+        sellingItemRepository.deleteAll(tableData);
+        sellingItemRepository.saveAll(itemsToAdd);
+        logger.info("ended update of " + category);
     }
 
-    public void checkTableActuality(String category) throws IOException {
+    public void checkTableActuality(String category) {
         if (parseProcesses.contains(category)) return;
-        createTableIfNotExist(category);
+        if (!categoryRepository.existsByCategory(category)) categoryRepository.save(new Category(category));
         Date now = new Date(System.currentTimeMillis());
-        int updateTime = 60;
-        if (TimeUnit.MINUTES.convert(now.getTime() - tableInfo.get(category).getTime(), TimeUnit.MILLISECONDS) > updateTime) {
+        int updateTime = 999999999; //оставлю 999 в покое
+        if (TimeUnit.MINUTES.convert(now.getTime() -
+                categoryRepository.findFirstByCategory(category).getLastUpdate().getTime(), TimeUnit.MILLISECONDS) > updateTime) {
             new Thread(() -> { try {
                 parseProcesses.add(category);
                 updateTableActuality(category);
-                actualityDB.updateActualityInfo(category, now);
+                categoryRepository.setLastUpdateByCategory(now, category);
                 parseProcesses.remove(category);
             } catch (IOException e) { e.printStackTrace(); }}).start();
-        }
-    }
-
-    private void createTableIfNotExist(String category) {
-        if (!tableInfo.containsKey(category)) {
-            itemDB.createTable(category);
-            itemDB.addItem(new SellingItem("Парсинг в процессе, перезагрузите страницу секунд через 30", "",
-                    "", "", ""), category);
-            tableInfo.put(category, new Date(0));
-            actualityDB.createActualityInfo(category);
         }
     }
 
@@ -81,13 +89,10 @@ public class Actualizer {
     public void sideUpdate() {
         new Thread(() -> {
             while (true) {
-                for (Map.Entry<String, Date> entry : tableInfo.entrySet()) try {
-                    checkTableActuality(entry.getKey());
-                    } catch (IOException e) { e.printStackTrace(); }
-                try {
-                    Thread.sleep(1000*60*30);}
-                catch (InterruptedException e) {e.printStackTrace();}
+                categoryRepository.findAll().forEach(category -> checkTableActuality(category.getCategory()));
+                try { Thread.sleep(1000*60*30); } catch (InterruptedException e) { e.printStackTrace(); }
             }
         }).start();
     }
+
 }

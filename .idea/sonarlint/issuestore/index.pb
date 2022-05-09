@@ -1,19 +1,15 @@
 
-R
-"src/main/java/com/SellingItem.java,0\a\0a50f554cae9f81d9a679179829cc8a11893e9e8
-X
-(src/main/java/com/HtmlBodyRequester.java,6\8\68a3a0bb160bad354996a44a738e3389a219c521
-P
- src/main/webapp/views/hello.html,2\a\2a13f6d45bd039e24c3d7cc6ae2f5bf1893f1706
-K
-src/main/java/com/Main.java,7\2\72f6368eb508d1f5066f8a8c6258cf8f3189fbc5
 7
 pom.xml,4\4\442292b8a7efeabbe4cc176709b833b1792140ec
-S
-#src/main/java/com/SpringConfig.java,5\5\552b40b010b004e46186295423685a30c3f34a2a
-V
-&src/main/java/mvc/SpringWebConfig.java,2\1\21dc3edd2f7b023e6d7e59446be165c6940ec000
-b
-2src/main/java/mvc/controllers/HelloController.java,c\7\c7b4e8b3045ae4fd1e5a1695b09f13d0ef840447
-o
-?src/main/java/mvc/MySpringMvcDispatcherSerlvetIntitializer.java,8\5\85556e87977205be810154a15e034c223994839c
+c
+3src/main/java/com/ServingWebContentApplication.java,f\b\fbb702b2eedba4146e57cb01b9935b89c58f9214
+]
+-src/main/java/com/db/sql/SellingItemCRUD.java,3\0\3066fc8a39c0b8dbf465dace38a108442ecbc0ee
+Y
+)src/main/java/com/parser/SellingItem.java,5\c\5c2fde7ceb24edd5ceccd74b12cbad2bda927420
+^
+.src/main/java/com/db/sql/ActualizatorCRUD.java,6\2\62019282fe36ba400f2f44c26832e74d18e66ab4
+Z
+*src/main/java/com/db/sql/MyDataSource.java,f\2\f22b988b7e7f3c89cd9680276a3b421f3afab2dd
+T
+$src/main/java/com/db/Actualizer.java,a\0\a078b518410d8292de12d1d32c1c396b535ce7f0
